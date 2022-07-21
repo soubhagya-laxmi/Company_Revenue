@@ -18,7 +18,7 @@ for(x in x:1900)
   Search <- Sheet1$Company[x]
   Search_comp <- str_replace_all(string=Search, pattern=" ", repl="+")
   Search_comp <- str_replace_all(string=Search_comp, pattern="&", repl="%26")
-  url <- paste("https://www.google.com/search?q=",Search_comp,"moneycontrol+profit+and+loss")
+  url <- paste("https://www.google.com/search?q=",Search_comp,"macrotrend+revenue")
   Comp_url <- str_replace_all(string=url, pattern=" ", repl="")
   
   con <- url(Comp_url, "rb") 
