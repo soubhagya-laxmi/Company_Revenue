@@ -1,0 +1,122 @@
+---
+title: "Yahoo finance"
+output: html_document
+date: '2022-07-18'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Yahoo Finance
+
+This is a Yahoo finance R Markdown document.We have first collected the listed companies of Singapore. Extracted the yahoo ticker from Google search engine.Then passed the yahoo ticker in the yahoo finance link to get the financial statement of the company for year 2019-2022.
+
+
+# Load packages
+
+Loading related packages
+```{r message=FALSE}
+library(httr)
+library(XML)
+library(xml2)
+library(rvest)
+library(readr)
+library(htm2txt) 
+library(googledrive)
+library(googlesheets4)
+library(stringr)
+library(RCurl)
+```
+# Read names of the company from sample list
+```{r,message=FALSE}
+Sheet1 <- read_sheet(drive_get("Company_List"))
+```
+
+# Extract company ticker from yahoo finance in google search engine
+
+```{r}
+data <- data.frame()
+for(x in 675:685)
+{
+  Search <- tolower(Sheet1$Company[x])
+  Search <- str_to_title(Search)
+  #Search <- Sheet1$Company[x]
+  Search_comp <- str_replace_all(string=Search, pattern=" ", repl="+")
+  Search_comp <- str_replace_all(string=Search_comp, pattern="&", repl="%26")
+  url <- paste("https://www.google.com/search?q=",Search_comp,"+yahoo+finance+ticker+SES")
+  Comp_url <- str_replace_all(string=url, pattern=" ", repl="")
+  con <- url(Comp_url, "rb") 
+  pg <- read_html(con)
+  close(con)
+  links <- html_attr(html_nodes(pg, "a"), "href")
+  F1 <- grep("https://sg.finance.yahoo.com/quote/|https://finance.yahoo.com/quote",links)
+  links[F1[1]]
+  
+  ticker <- str_match(links[F1[1]], c("quote/s*(.*?)\\s*&","quote/s*(.*?)\\s*%","quote/s*(.*?)\\s*?"))
+  ticker <- ticker[1][1]
+  ticker <- gsub("quote/|&|%|?|/","",ticker)
+  new <- data.frame(Company = Sheet1$Company[x],Country = Sheet1$Country[x],
+                    Ticker = ticker)
+  data <- rbind(data,new)
+}
+
+head(data)
+#sheet_append(drive_get("yahoo_Ticker"),data)
+
+```
+ 
+#Search from yahoo Ticker
+Extract data from yahoo finance link using the yahoo ticker
+```{r}
+Sheet1 <- read_sheet(drive_get("yahoo_Ticker"))
+
+data <- data.frame()
+for(x in 1:10)
+{  
+  Search <- Sheet1$Ticker[x]
+  new_url <- paste("https://finance.yahoo.com/quote/",Search,"/financials?p=",Search)
+  new_url <- str_replace_all(string=new_url, pattern=" ", repl="")
+  
+text <- gettxt(new_url)
+words <- unlist(str_split(text, "\n\n"))
+
+words<- str_replace_all(string=words, pattern=",", repl="") 
+
+F2 <- grep("Total revenue|Total Revenue",words)
+
+words[F2[1]]
+
+#Conversion from Singapore dollar to US dollar
+Rev_2022 <- as.numeric(words[F2[1]+1]) *.72
+Rev_2021 <- as.numeric(words[F2[1]+2]) *.72
+Rev_2020 <- as.numeric(words[F2[1]+3]) *.72
+Rev_2019 <- as.numeric(words[F2[1]+4]) *.72
+
+new <- data.frame(Company = Sheet1$Company[x],Country = Sheet1$Country[x],
+                  Website = new_url,
+                  Rev_2022 = Rev_2022, Rev_2021 =Rev_2021,
+                  Rev_2020 = Rev_2020,Rev_2019 = Rev_2019)
+
+new[4:7]<- paste("$",new[4:7])
+data <- rbind(data,new)
+
+}
+head(data)
+#sheet_append(drive_get("yahoo_finance"),data)
+```
+
+  
+
+  
+ 
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
