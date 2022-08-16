@@ -86,9 +86,9 @@ for(x in x:874)
   
 }
 View(data)
-x<-x+1  
+ 
 sheet_append(drive_get("sample_data"),data) 
 
-sheet_append(drive_get("sample_data"),new)
+
 
   
