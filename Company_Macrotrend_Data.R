@@ -70,7 +70,7 @@ for(x in x:1900)
   
   #x<- x+1
 }
-View(data)
+View(data) 
 
 sheet_append(drive_get("sample_data"),data)
 x<-x+1
