@@ -50,7 +50,7 @@ for(x in x:500)
 }
 View(data)
 
-sheet_append(drive_get("Founder Data"),data)
+sheet_append(drive_get("Wikipedia Data"),data)
 
-x<-x+1
+
   
