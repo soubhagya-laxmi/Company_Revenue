@@ -20,7 +20,7 @@ for(x in x:nrow(Sheet1))
   Search_comp <- str_replace_all(string=Search, pattern=" ", repl="+")
   Search_comp <- str_replace_all(string=Search, pattern="&", repl="%26")
   
-  url <- paste("https://www.google.com/search?q=",Search_comp,"+S%26P+credit+rating")
+  url <- paste("https://www.google.com/search?q=",Search_comp,"+credit+rating")
   Comp_url <- str_replace_all(string=url, pattern=" ", repl="")
   
   text <- gettxt(Comp_url)
